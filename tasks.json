@@ -4,14 +4,14 @@
     "task": "ir a mercadona",
     "startDate": "02-01-2026",
     "endDate": "03-01-2026",
-    "completed": false
+    "completed": true
   },
   {
     "id": 2,
     "task": "exito !!!",
     "startDate": "02-01-2026",
     "endDate": "03-01-2026",
-    "completed": false
+    "completed": true
   },
   {
     "id": 3,
@@ -32,13 +32,20 @@
     "task": "otra tarea",
     "startDate": "03-01-2026",
     "endDate": "31-01-2026",
-    "completed": false
+    "completed": true
   },
   {
     "id": 7,
     "task": "Ir de viaje",
     "startDate": "02-01-2026",
     "endDate": "09-01-2026",
-    "completed": false
+    "completed": true
+  },
+  {
+    "id": 8,
+    "task": "reservar vuelo",
+    "startDate": "01-02-2026",
+    "endDate": "28-02-2026",
+    "completed": true
   }
 ]

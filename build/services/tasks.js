@@ -52,3 +52,26 @@ export async function listTasks() {
         throw new Error(`Failed to load listTasks module: ${error}`);
     }
 }
+export async function completeTask(id) {
+    try {
+        const filepath = getFilePath();
+        let tasks = [];
+        try {
+            const data = await fs.readFile(filepath, "utf8");
+            tasks = JSON.parse(data);
+        }
+        catch (error) {
+            tasks = [];
+        }
+        const idx = tasks.findIndex((t) => t.id === id);
+        if (idx === -1)
+            return null;
+        const updated = { ...tasks[idx], completed: true };
+        tasks[idx] = updated;
+        await fs.writeFile(filepath, JSON.stringify(tasks, null, 2), "utf8");
+        return updated;
+    }
+    catch (error) {
+        throw new Error(`Failed to complete task: ${error}`);
+    }
+}
