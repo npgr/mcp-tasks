@@ -25,18 +25,10 @@ server.registerTool("add_task", {
         ]
     };
 });
-server.registerTool("list_tasks", {
-    description: "List all tasks.",
-    // inputSchema: z.object({
-    //     task: z.string().describe("The description of the task."),
-    //     startDate: z.string().describe("The start date of the task in DD-MM-YYYY format."),
-    //     endDate: z.string().describe("The end date of the task in DD-MM-YYYY format."),
-    //     completed: z.boolean().describe("Whether the task is completed or not."),
-    // }),
-}, async () => {
+server.registerTool("list_tasks", { description: "List all tasks." }, async () => {
     const tasks = await listTasks();
-    const header = '| Task | Start | End | Completed |\n|------|-------|-----|-----------|';
-    const rows = tasks.map(t => `| ${t.task} | ${t.startDate} | ${t.endDate} | ${t.completed} |`).join('\n');
+    const header = '| ID | Task | Start | End | Completed |\n|----|------|-------|-----|-----------|';
+    const rows = tasks.map(t => `| ${t.id ?? ''} | ${t.task} | ${t.startDate} | ${t.endDate} | ${t.completed} |`).join('\n');
     const md = tasks.length ? `${header}\n${rows}` : 'No tasks found.';
     return {
         content: [

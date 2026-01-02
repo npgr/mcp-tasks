@@ -38,8 +38,8 @@ server.registerTool(
     { description: "List all tasks." },
     async () => {
         const tasks = await listTasks();
-        const header = '| Task | Start | End | Completed |\n|------|-------|-----|-----------|';
-        const rows = tasks.map(t => `| ${t.task} | ${t.startDate} | ${t.endDate} | ${t.completed} |`).join('\n');
+        const header = '| ID | Task | Start | End | Completed |\n|----|------|-------|-----|-----------|';
+        const rows = tasks.map(t => `| ${t.id ?? ''} | ${t.task} | ${t.startDate} | ${t.endDate} | ${t.completed} |`).join('\n');
         const md = tasks.length ? `${header}\n${rows}` : 'No tasks found.';
 
         return {
