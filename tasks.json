@@ -1,0 +1,26 @@
+[
+  {
+    "task": "ir a mercadona",
+    "startDate": "02-01-2026",
+    "endDate": "03-01-2026",
+    "completed": false
+  },
+  {
+    "task": "exito !!!",
+    "startDate": "02-01-2026",
+    "endDate": "03-01-2026",
+    "completed": false
+  },
+  {
+    "task": "Completar configuración del servidor MCP",
+    "startDate": "01-05-2026",
+    "endDate": "15-05-2026",
+    "completed": false
+  },
+  {
+    "task": "Finalizar MCP",
+    "startDate": "02-01-2026",
+    "endDate": "31-01-2026",
+    "completed": false
+  }
+]

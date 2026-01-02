@@ -1,0 +1,25 @@
+{
+  "name": "mcp-tasks",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "Nuno Goncalves",
+  "type": "module",
+  "bin": {
+    "tasks": "./build/index.js"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "files": [
+    "build"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.25.1",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.3",
+    "typescript": "^5.9.3"
+  }
+}
