@@ -1,7 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import { addTask, listTasks, completeTask } from "./services/tasks.js";
+import { addTask, listTasks, markTaskCompleted } from "./services/tasks.js";
 
 // Create server instance
 const server = new McpServer({
@@ -15,12 +15,12 @@ server.registerTool(
         description: "Add a new task to the task list.",
         inputSchema: z.object({
             task: z.string().describe("The description of the task."),
-            startDate: z.string().describe("The start date of the task in DD-MM-YYYY format."),
-            endDate: z.string().describe("The end date of the task in DD-MM-YYYY format."),
-            completed: z.boolean().describe("Whether the task is completed or not."),
+            startDate: z.string().optional().describe("The start date of the task in DD-MM-YYYY format."),
+            endDate: z.string().optional().describe("The end date of the task in DD-MM-YYYY format."),
+            completed: z.boolean().optional().describe("Whether the task is completed or not."),
         }),
     },
-    async ({ task, startDate, endDate, completed }) => {
+    async ({ task, startDate="", endDate="", completed = false }) => {
         addTask({ task, startDate, endDate, completed });
 
         return {
@@ -35,44 +35,75 @@ server.registerTool(
 
 server.registerTool(
     "list_tasks",
-    { description: "List all tasks." },
-    async () => {
-        const tasks = await listTasks();
-        const header = '| ID | Task | Start | End | Completed |\n|----|------|-------|-----|-----------|';
-        const rows = tasks.map(t => `| ${t.id ?? ''} | ${t.task} | ${t.startDate} | ${t.endDate} | ${t.completed} |`).join('\n');
-        const md = tasks.length ? `${header}\n${rows}` : 'No tasks found.';
+    {
+      description: "List all tasks.",
+      inputSchema: z.object({
+        completed: z.boolean().optional().describe("Optional filter: true for completed tasks, false for incomplete tasks."),
+      }),
+    },
+    async (input?: { completed?: boolean }) => {
+      const { completed } = input ?? {};
+      const tasks = await listTasks();
+      const filtered = typeof completed === 'boolean' ? tasks.filter((t) => t.completed === completed) : tasks;
+      const text = filtered.length ? JSON.stringify(filtered) : '[]';
 
-        return {
-            content: [
-                { type: "text",
-                  text: md,
-                },
-            ]
-        }
+      return {
+        content: [
+          { type: "text",
+            text,
+          },
+        ]
+      }
     }
 )
 
-  server.registerTool(
-    "complete_task",
+server.registerTool(
+  "mark_task_completed",
+  {
+    description: "Mark a task completed by exact task name.",
+    inputSchema: z.object({
+      taskName: z.string().describe("The exact name of the task to mark completed."),
+    }),
+  },
+  async ({ taskName }) => {
+    const updated = await markTaskCompleted(taskName, true);
+    if (!updated) {
+      return {
+        content: [
+          { type: "text", text: `Task with name "${taskName}" not found.` },
+        ],
+      };
+    }
+
+    return {
+      content: [
+        { type: "text", text: `Task "${updated.task}" marked completed.` },
+      ],
+    };
+  }
+)
+
+server.registerTool(
+    "mark_task_pending",
     {
-      description: "Mark a task complete by id. Id can be gotten from list_tasks in case only task name.",
+      description: "Mark a task pending by exact task name.",
       inputSchema: z.object({
-        id: z.number().int().positive().describe("The numeric id of the task to mark completed."),
+        taskName: z.string().describe("The exact name of the task to mark pending."),
       }),
     },
-    async ({ id }) => {
-      const updated = await completeTask(id);
+    async ({ taskName }) => {
+      const updated = await markTaskCompleted(taskName, false);
       if (!updated) {
         return {
           content: [
-            { type: "text", text: `Task with id ${id} not found.` },
+            { type: "text", text: `Task with name "${taskName}" not found.` },
           ],
         };
       }
 
       return {
         content: [
-          { type: "text", text: `Task "${updated.task}" (id ${id}) marked completed.` },
+          { type: "text", text: `Task "${updated.task}" marked pending.` },
         ],
       };
     }
