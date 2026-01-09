@@ -79,3 +79,24 @@ export async function markTaskCompleted(taskName, completed) {
         throw new Error(`Failed to complete task: ${error}`);
     }
 }
+export async function deleteTask(taskName) {
+    try {
+        const page = await pb.collection('tasks').getList(1, 1, { filter: `task="${taskName.replace(/"/g, '\\"')}"` });
+        if (!page || !page.items || page.items.length === 0)
+            return null;
+        const record = page.items[0];
+        await pb.collection('tasks').delete(record.id);
+        const deleted = {
+            id: typeof record.id === 'string' && /^\d+$/.test(record.id) ? parseInt(record.id, 10) : record.id,
+            task: record.task ?? taskName,
+            startDate: record.startDate ?? '',
+            endDate: record.endDate ?? '',
+            completed: !!record.completed,
+        };
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        return deleted;
+    }
+    catch (error) {
+        throw new Error(`Failed to delete task: ${error}`);
+    }
+}

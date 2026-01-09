@@ -1,7 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import { addTask, listTasks, markTaskCompleted } from "./services/tasks.js";
+import { addTask, listTasks, markTaskCompleted, deleteTask } from "./services/tasks.js";
 
 // Create server instance
 const server = new McpServer({
@@ -108,6 +108,28 @@ server.registerTool(
       };
     }
   )
+
+server.registerTool("delete_task", {
+    description: "Delete a task by exact task name.",
+    inputSchema: z.object({
+        taskName: z.string().describe("The exact name of the task to delete."),
+    }),
+}, async ({ taskName }) => {
+    const deleted = await deleteTask(taskName);
+    if (!deleted) {
+        return {
+            content: [
+                { type: "text", text: `Task with name "${taskName}" not found.` },
+            ],
+        };
+    }
+    
+    return {
+        content: [
+            { type: "text", text: `Task "${deleted.task}" deleted.` },
+        ],
+    };
+});
 
 async function main() {
   const transport = new StdioServerTransport();
