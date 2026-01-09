@@ -1,5 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { createUIResource, } from '@mcp-ui/server';
 import { z } from "zod";
 import { addTask, listTasks, markTaskCompleted, deleteTask } from "./services/tasks.js";
 
@@ -130,6 +131,24 @@ server.registerTool("delete_task", {
         ],
     };
 });
+
+server.registerTool("show_tasks_ui", {
+    description: "Show the tasks UI.",
+    // inputSchema: z.object({
+    //     taskName: z.string().describe("The exact name of the task to delete."),
+    // }),
+}, () => ({
+    content: [
+      createUIResource({
+        uri: `ui://tasks-list`,
+        content: {
+          type: "externalUrl",
+          iframeUrl: `http://localhost:3000/tasks`,
+        },
+        encoding: "text",
+      }),
+    ],
+  }));
 
 async function main() {
   const transport = new StdioServerTransport();
