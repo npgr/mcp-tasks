@@ -34,30 +34,6 @@ server.registerTool(
     }
 )
 
-// server.registerTool(
-//     "list_tasks",
-//     {
-//       description: "List all tasks.",
-//       inputSchema: z.object({
-//         completed: z.boolean().optional().describe("Optional filter: true for completed tasks, false for incomplete tasks."),
-//       }),
-//     },
-//     async (input?: { completed?: boolean }) => {
-//       const { completed } = input ?? {};
-//       const tasks = await listAllTasks();
-//       const filtered = typeof completed === 'boolean' ? tasks.filter((t) => t.completed === completed) : tasks;
-//       const text = filtered.length ? JSON.stringify(filtered) : '[]';
-
-//       return {
-//         content: [
-//           { type: "text",
-//             text,
-//           },
-//         ]
-//       }
-//     }
-//   )
-
 server.registerTool(
   "mark_task_completed",
   {
