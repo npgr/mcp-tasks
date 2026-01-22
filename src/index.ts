@@ -2,7 +2,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { createUIResource, } from '@mcp-ui/server';
 import { z } from "zod";
-import { addTask, listTasks, markTaskCompleted, deleteTask } from "./services/tasks.js";
+import { addTask, listAllTasks, listPendingTasks, listCompletedTasks, markTaskCompleted, deleteTask } from "./services/tasks.js";
 
 // Create server instance
 const server = new McpServer({
@@ -34,29 +34,29 @@ server.registerTool(
     }
 )
 
-server.registerTool(
-    "list_tasks",
-    {
-      description: "List all tasks.",
-      inputSchema: z.object({
-        completed: z.boolean().optional().describe("Optional filter: true for completed tasks, false for incomplete tasks."),
-      }),
-    },
-    async (input?: { completed?: boolean }) => {
-      const { completed } = input ?? {};
-      const tasks = await listTasks();
-      const filtered = typeof completed === 'boolean' ? tasks.filter((t) => t.completed === completed) : tasks;
-      const text = filtered.length ? JSON.stringify(filtered) : '[]';
+// server.registerTool(
+//     "list_tasks",
+//     {
+//       description: "List all tasks.",
+//       inputSchema: z.object({
+//         completed: z.boolean().optional().describe("Optional filter: true for completed tasks, false for incomplete tasks."),
+//       }),
+//     },
+//     async (input?: { completed?: boolean }) => {
+//       const { completed } = input ?? {};
+//       const tasks = await listAllTasks();
+//       const filtered = typeof completed === 'boolean' ? tasks.filter((t) => t.completed === completed) : tasks;
+//       const text = filtered.length ? JSON.stringify(filtered) : '[]';
 
-      return {
-        content: [
-          { type: "text",
-            text,
-          },
-        ]
-      }
-    }
-)
+//       return {
+//         content: [
+//           { type: "text",
+//             text,
+//           },
+//         ]
+//       }
+//     }
+//   )
 
 server.registerTool(
   "mark_task_completed",
@@ -131,6 +131,66 @@ server.registerTool("delete_task", {
         ],
     };
 });
+
+server.registerTool(
+  "list_all_tasks",
+  {
+    description: "List all tasks.",
+    inputSchema: z.object({}),
+  },
+  async () => {
+    const tasks = await listAllTasks();
+    const text = tasks.length ? JSON.stringify(tasks) : '[]';
+
+    return {
+      content: [
+        { type: "text",
+          text,
+        },
+      ]
+    }
+  }
+)
+
+server.registerTool(
+  "list_pending_tasks",
+  {
+    description: "List all pending tasks.",
+    inputSchema: z.object({}),
+  },
+  async () => {
+    const tasks = await listPendingTasks();
+    const text = tasks.length ? JSON.stringify(tasks) : '[]';
+
+    return {
+      content: [
+        { type: "text",
+          text,
+        },
+      ]
+    }
+  }
+)
+
+server.registerTool(
+  "list_completed_tasks",
+  {
+    description: "List all completed tasks.",
+    inputSchema: z.object({}),
+  },
+  async () => {
+    const tasks = await listCompletedTasks();
+    const text = tasks.length ? JSON.stringify(tasks) : '[]';
+
+    return {
+      content: [
+        { type: "text",
+          text,
+        },
+      ]
+    }
+  }
+)
 
 server.registerTool("show_tasks_ui", {
     description: "Show the tasks UI.",

@@ -33,7 +33,7 @@ export async function addTask(newTask) {
         throw new Error(`Failed to load addTask module: ${error}`);
     }
 }
-export async function listTasks() {
+export async function listAllTasks() {
     try {
         const pbUrl = process.env.POCKETBASE_URL || 'http://127.0.0.1:8090';
         const pb = new PocketBase(pbUrl);
@@ -49,7 +49,51 @@ export async function listTasks() {
         return tasks;
     }
     catch (error) {
-        throw new Error(`Failed to load listTasks module: ${error}`);
+        throw new Error(`Failed to load listAllTasks module: ${error}`);
+    }
+}
+export async function listPendingTasks() {
+    try {
+        const pbUrl = process.env.POCKETBASE_URL || 'http://127.0.0.1:8090';
+        const pb = new PocketBase(pbUrl);
+        // Fetch all records from the `tasks` collection where completed is false
+        const records = await pb.collection('tasks').getFullList({
+            sort: '-created',
+            filter: 'completed = false'
+        });
+        const tasks = records.map((r) => ({
+            id: typeof r.id === 'string' && /^\d+$/.test(r.id) ? parseInt(r.id, 10) : r.id,
+            task: r.task ?? r.title ?? '',
+            startDate: r.startDate ?? '',
+            endDate: r.endDate ?? '',
+            completed: !!r.completed,
+        }));
+        return tasks;
+    }
+    catch (error) {
+        throw new Error(`Failed to load listPendingTasks module: ${error}`);
+    }
+}
+export async function listCompletedTasks() {
+    try {
+        const pbUrl = process.env.POCKETBASE_URL || 'http://127.0.0.1:8090';
+        const pb = new PocketBase(pbUrl);
+        // Fetch all records from the `tasks` collection where completed is true
+        const records = await pb.collection('tasks').getFullList({
+            sort: '-created',
+            filter: 'completed = true'
+        });
+        const tasks = records.map((r) => ({
+            id: typeof r.id === 'string' && /^\d+$/.test(r.id) ? parseInt(r.id, 10) : r.id,
+            task: r.task ?? r.title ?? '',
+            startDate: r.startDate ?? '',
+            endDate: r.endDate ?? '',
+            completed: !!r.completed,
+        }));
+        return tasks;
+    }
+    catch (error) {
+        throw new Error(`Failed to load listCompletedTasks module: ${error}`);
     }
 }
 export async function markTaskCompleted(taskName, completed) {

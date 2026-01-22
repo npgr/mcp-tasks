@@ -52,7 +52,7 @@ export async function addTask(newTask: NewTask): Promise<Task> {
     }
 }
 
-export async function listTasks(): Promise<Task[]> {
+export async function listAllTasks(): Promise<Task[]> {
     try {
         const pbUrl = process.env.POCKETBASE_URL || 'http://127.0.0.1:8090';
         const pb = new PocketBase(pbUrl);
@@ -70,7 +70,57 @@ export async function listTasks(): Promise<Task[]> {
 
         return tasks;
     } catch (error) {
-        throw new Error(`Failed to load listTasks module: ${error}`);
+        throw new Error(`Failed to load listAllTasks module: ${error}`);
+    }
+}
+
+export async function listPendingTasks(): Promise<Task[]> {
+    try {
+        const pbUrl = process.env.POCKETBASE_URL || 'http://127.0.0.1:8090';
+        const pb = new PocketBase(pbUrl);
+
+        // Fetch all records from the `tasks` collection where completed is false
+        const records = await pb.collection('tasks').getFullList({ 
+            sort: '-created',
+            filter: 'completed = false'
+        });
+
+        const tasks: Task[] = records.map((r: any) => ({
+            id: typeof r.id === 'string' && /^\d+$/.test(r.id) ? parseInt(r.id, 10) : r.id,
+            task: r.task ?? r.title ?? '',
+            startDate: r.startDate ?? '',
+            endDate: r.endDate ?? '',
+            completed: !!r.completed,
+        }));
+
+        return tasks;
+    } catch (error) {
+        throw new Error(`Failed to load listPendingTasks module: ${error}`);
+    }
+}
+
+export async function listCompletedTasks(): Promise<Task[]> {
+    try {
+        const pbUrl = process.env.POCKETBASE_URL || 'http://127.0.0.1:8090';
+        const pb = new PocketBase(pbUrl);
+
+        // Fetch all records from the `tasks` collection where completed is true
+        const records = await pb.collection('tasks').getFullList({ 
+            sort: '-created',
+            filter: 'completed = true'
+        });
+
+        const tasks: Task[] = records.map((r: any) => ({
+            id: typeof r.id === 'string' && /^\d+$/.test(r.id) ? parseInt(r.id, 10) : r.id,
+            task: r.task ?? r.title ?? '',
+            startDate: r.startDate ?? '',
+            endDate: r.endDate ?? '',
+            completed: !!r.completed,
+        }));
+
+        return tasks;
+    } catch (error) {
+        throw new Error(`Failed to load listCompletedTasks module: ${error}`);
     }
 }
 
